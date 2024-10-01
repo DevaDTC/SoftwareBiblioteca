@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="biblioteca_estudiantes.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIBLIOTECA</title>
+</head>
+
+<body>
+    <header>
+        <h3>Biblioteca</h3>
+        <button class="logout-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
+                class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                    d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0z" />
+                <path fill-rule="evenodd"
+                    d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z" />
+            </svg>
+        </button> </header>
+
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+
+    <div class="sidebar active" id="sidebar">
+        <div class="user-profile">
+            <img src="https://via.placeholder.com/80" alt="Foto de usuario">
+            <h3>Juan Pérez</h3>
+            <p>Administrador</p>
+        </div>
+
+        <a href="#">Prestamos</a>
+        <a href="#">Estudiantes</a>
+        <a href="#">Asignaturas</a>
+        <a href="#">Libros</a>
+        <a href="#">Reportes</a>
+    </div>
+
+    <div class="content" id="content">
+        <div style="display: flex; flex-direction: row; justify-content: space-between;">
+            <p>Estudiantes</p>
+            <div class="headContainer">
+                <button onclick="window.location.href='BIBLIOTECA.html'" type="submit">Atrás</button>
+                <button id="popEstu">Agregar Estudiante</button>
+            </div>
+        </div>
+        <div class="container">
+
+            <div class="search-inline">
+                <input name="txtSearch" class="search-inline--input" placeholder="Buscar">
+            </div>
+
+            <div id="studentTable"></div> 
+
+        </div>
+
+    </div>
+
+    <div id="registrationModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Agregar Nuevo Estudiante</h3>
+            <form id="registrationForm" action="save_student.php" method="post">
+                <div class="form-grid">
+                    <div>
+                        <label for="nameStudent">Nombre Completo:</label>
+                        <input type="text" id="nameStudent" name="nameStudent" required>
+                    </div>
+                    <div>
+                        <label for="registrationStudent">Matrícula:</label>
+                        <input type="text" id="registrationStudent" name="registrationStudent" required>
+                    </div>
+                    <div>
+                        <label for="speciality">Carrera:</label>
+                        <select id="speciality" name="speciality">
+                            <option value="ICA">Ing. Civil y Administración</option>
+                            <option value="IE">Ing. Energía</option>
+                            <option value="ISC">Ing. Sistemas Computacionales</option>
+                            <option value="ITS">Ing. Tecnología de Software</option>
+                            <option value="IM">Ing. Mecatrónica</option>
+                            <option value="IME">Ing. Mecatrónica Eléctrica</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="emailStudent">Correo Electrónico:</label>
+                        <input type="email" id="emailStudent" name="emailStudent" required>
+                    </div>
+                </div>
+
+                <div class="button-container">
+                    <button type="button" class="back-btn" id="backBtn">Atrás</button>
+                    <button type="submit">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Mostrar el modal cuando se haga clic en el botón "Agregar Estudiante"
+        document.getElementById('popEstu').onclick = function () {
+            document.getElementById('registrationModal').style.display = "block";
+        }
+
+        // Cerrar el modal al hacer clic en la "x"
+        document.getElementsByClassName('close')[0].onclick = function () {
+            document.getElementById('registrationModal').style.display = "none";
+        }
+
+        // Cerrar el modal si se hace clic fuera de la ventana del modal
+        window.onclick = function (event) {
+            if (event.target == document.getElementById('registrationModal')) {
+                document.getElementById('registrationModal').style.display = "none";
+            }
+        }
+
+        // Cerrar el modal al hacer clic en el botón "Atrás"
+        document.getElementById('backBtn').onclick = function () {
+            document.getElementById('registrationModal').style.display = "none";
+        }
+
+        // Function to fetch and display student data
+        function loadStudentData() {
+            fetch('get_students.php')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('studentTable').innerHTML = data;
+                });
+        }
+
+        // Call the function initially to load data
+        loadStudentData();
+
+        // After successful form submission, reload the table
+        document.getElementById('registrationForm').addEventListener('submit', function (event) {
+            // ... (your existing form submission handling) ...
+
+            // Reload student data after successful submission
+            loadStudentData();
+        });
+    </script>
+
+</body>
+
+</html>

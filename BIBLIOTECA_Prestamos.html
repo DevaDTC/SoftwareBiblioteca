@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="biblioteca_prestamos.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIBLIOTECA</title>
+</head>
+
+<body>
+    <header>
+        <h3>Biblioteca</h3>
+        <button class="logout-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0z" />
+                <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z" />
+            </svg>
+        </button> </header>
+
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+
+    <div class="sidebar active" id="sidebar">
+        <div class="user-profile">
+            <img src="https://via.placeholder.com/80" alt="Foto de usuario">
+            <h3>Juan Pérez</h3>
+            <p>Administrador</p>
+        </div>
+
+        <a href="#" onclick="window.location.href='BIBLIOTECA_Prestamos.html'">Prestamos</a>
+        <a href="#" onclick="window.location.href='BIBLIOTECA_Estudiantes.html'">Estudiantes</a>
+        <a href="#">Asignaturas</a>
+        <a href="#" onclick="window.location.href='BIBLIOTECA_Libros.html'">Libros</a>
+        <a href="#">Reportes</a>
+    </div>
+
+    <div class="content" id="content">
+        <div style="display: flex; flex-direction: row; justify-content: space-between;">
+            <p>Prestamos</p>
+            <div class="headContainer">
+                <button onclick="window.location.href='BIBLIOTECA.html'" type="submit">Atrás</button>
+                <button id="registerLoanBtn" onclick="document.getElementById('loanModal').style.display = 'block';">Agregar permiso</button>            </div>
+        </div>
+        <div class="container">
+            <div class="search-inline">
+                <input name="txtSearch" class="search-inline--input" placeholder="Buscar">
+            </div>
+
+            <div id="loanTable"></div> 
+        </div>
+    </div>
+
+    <div id="loanModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Agregar Nuevo Prestamo</h3>
+            <form id="loanForm">
+                <div class="form-grid">
+                    <div>
+                        <label for="registrationStudent">Matricula del Estudiante:</label>
+                        <input type="text" id="registrationStudent" name="registrationStudent" required>
+                    </div>
+
+                    <div>
+                        <label for="booksQuantity">Cantidad de Libros:</label>
+                        <input type="number" id="booksQuantity" name="booksQuantity" min="1" max="2" required>
+                    </div>
+
+                    <div>
+                        <label for="loanDate">Fecha del Permiso:</label>
+                        <input type="date" id="loanDate" name="loanDate" required>
+                    </div>
+
+                    <div>
+                        <label for="loanHour">Hora del Permiso:</label>
+                        <input type="time" id="loanHour" name="loanHour" required>
+                    </div>
+
+                    <div>
+                        <label for="expirationDate">Fecha de Devolución:</label>
+                        <input type="date" id="expirationDate" name="expirationDate" required>
+                    </div>
+
+                    <div>
+                        <label for="loanSignature">Firma del Prestamista:</label>
+                        <input type="file" id="loanSignature" name="loanSignature" accept="image/*" required onchange="validateImageSize(this)">
+                    </div>
+
+                    <div>
+                        <label for="renovationNumber">Número de Renovación:</label>
+                        <input type="number" id="renovationNumber" name="renovationNumber" min="1" max="2" required>
+                    </div>
+                </div>
+                <hr style="width:100%;margin-top:40px; margin-bottom: 30px;">
+
+                <div id="booksInfo"></div>
+
+                <div class="button-container">
+                    <button type="button" class="back-btn" id="backBtn">Atrás</button>
+                    <button type="submit">Registrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ... (your existing JavaScript code for modal handling and image validation) ...
+
+        // Function to fetch and display loan data
+        function loadLoanData() {
+            fetch('get_loans.php')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('loanTable').innerHTML = data; 
+                });
+        }
+
+        // Call the function initially to load data
+        loadLoanData();
+
+        // Handle loan form submission
+        document.getElementById('loanForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('save_loan.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        loadLoanData(); // Refresh the loan table
+                        document.getElementById('loanModal').style.display = "none"; // Close the modal
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while registering the loan.');
+                });
+        });
+
+        // Añadir campos dinámicos para los libros según la cantidad seleccionada
+        document.getElementById('booksQuantity').addEventListener('input', function () {
+            const bookCount = parseInt(this.value);
+            const booksInfoDiv = document.getElementById('booksInfo');
+            booksInfoDiv.innerHTML = ''; // Limpiar el contenido actual
+
+            if (bookCount > 0 && bookCount <= 2) {
+                for (let i = 1; i <= bookCount; i++) {
+                    const bookDiv = document.createElement('div');
+                    bookDiv.classList.add('form-grid');
+                    bookDiv.innerHTML = `
+                        <h4>Libro <span class="math-inline">\{i\}</h4\>
+<div\>
+<label for\="bookMatricula</span>{i}">Matrícula del Libro:</label>
+                            <input type="text" id="bookMatricula${i}" name="bookMatricula${i}" required>
+                        </div>
+                        <div>
+                            <label for="bookAuthor${i}">Autor del Libro:</label>
+                            <input type="text" id="bookAuthor${i}" name="bookAuthor${i}" required
+                        </div>
+                        <div>
+                            <label for="bookTitle${i}">Título del Libro:</label>
+                            <input type="text" id="bookTitle${i}" name="bookTitle${i}" required>
+                        </div>
+                    `;
+                    booksInfoDiv.appendChild(bookDiv);
+                }
+            }
+        });
+
+        // Validar el tamaño de la imagen
+        function validateImageSize(input) {
+            const file = input.files[0];
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+            img.onload = function () {
+                if (img.width !== 50 || img.height !== 50) {
+                    alert("La imagen debe ser de 50x50 píxeles.");
+                    input.value = ''; // Limpiar el campo
+                }
+            };
+        }
+    </script>
+</body>
+
+</html>
